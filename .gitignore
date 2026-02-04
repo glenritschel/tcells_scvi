@@ -1,0 +1,15 @@
+# data
+data/raw/
+data/interim/
+data/processed/
+
+# results
+results/
+
+# python
+__pycache__/
+*.pyc
+
+# env
+.env
+
