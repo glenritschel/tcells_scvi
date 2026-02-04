@@ -1,0 +1,23 @@
+name: tcells-scvi
+channels:
+  - conda-forge
+dependencies:
+  - python=3.10
+  - pip
+  - numpy
+  - pandas
+  - scipy
+  - scikit-learn
+  - matplotlib
+  - seaborn
+  - scanpy
+  - anndata
+  - pytorch
+  - pytorch-cuda=12.1  # remove if CPU-only
+  - scvi-tools
+  - pyyaml
+  - tqdm
+  - pip:
+      - gseapy
+      - gprofiler-official
+
