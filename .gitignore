@@ -1,3 +1,24 @@
+# Runtime working directories (GEO downloads, extracted matrices, outputs)
+work_*/
+
+# Large raw data (if any appear later)
+data/
+raw/
+downloads/
+
+# AnnData outputs
+*.h5ad
+
+# Scanpy figure outputs
+figures/
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Jupyter (if you use later)
+.ipynb_checkpoints/
+
 # data
 data/raw/
 data/interim/
@@ -5,10 +26,6 @@ data/processed/
 
 # results
 results/
-
-# python
-__pycache__/
-*.pyc
 
 # env
 .env
