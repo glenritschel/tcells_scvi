@@ -30,3 +30,16 @@ results/
 # env
 .env
 
+# GEO downloads
+GSE195452_family.soft.gz
+
+# Generated data and models
+fastq/
+
+# Submission staging artifacts
+submission_csvs/
+submission_pngs/
+
+# Deprecated scripts (not part of pipeline)
+scripts/deprecated/
+

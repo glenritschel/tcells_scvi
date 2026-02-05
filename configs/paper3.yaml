@@ -1,0 +1,159 @@
+# Paper 3 – T cell functional states in systemic sclerosis
+# Central configuration for reproducible pipeline runs.
+
+project:
+  name: "Paper 3 – T cell functional states in systemic sclerosis"
+  researcher: "Glen Ritschel"
+  dataset: "GSE195452"
+  notes:
+    - "Processed GSM gene×cell count tables (not FASTQ/10x matrices)."
+    - "Conservative QC: do not tighten further."
+    - "Batch key for scVI: sample_id"
+
+paths:
+  data_dir: "fastq/data"
+  scripts_dir: "scripts"
+  # Canonical inputs/outputs
+  qc_full_h5ad: "fastq/data/GSE195452_qc_75_75_min25cells.h5ad"
+
+hvg:
+  enabled: true
+  n_top_genes: 3000
+  batch_key: "sample_id"
+  output_h5ad: "fastq/data/GSE195452_qc_75_75_min25cells_hvg3000.h5ad"
+  # scanpy highly_variable_genes settings (used inside make_hvg_input.py)
+  flavor: "seurat_v3"
+  n_bins: 20
+
+scvi:
+  batch_key: "sample_id"
+  n_latent: 30
+  max_epochs: 100
+  batch_size: 512
+  seed: 0
+  num_workers: 0
+  pin_memory: false
+  device: "cpu"
+  run_dir: "fastq/data/scvi_hvg3000_run1"
+  model_path: "fastq/data/scvi_hvg3000_run1/scvi_model/model.pt"
+
+latent_embedding:
+  # HVG object with latent + UMAP
+  output_h5ad: "fastq/data/GSE195452_scvi_hvg3000_latent_umap.h5ad"
+  # Batch mixing plots etc.
+  plots:
+    enabled: true
+    outdir: "fastq/data"
+    batch_key: "sample_id"
+    batch_plot_nolegend: true
+    marker_genes_hvg_space:
+      - "CD3D"
+      - "CD3E"
+      - "TRAC"
+      - "TRBC1"
+      - "MS4A1"
+      - "CD79A"
+      - "LYZ"
+      - "NKG7"
+      - "GNLY"
+
+embeddings_transfer:
+  enabled: true
+  full_input_h5ad: "fastq/data/GSE195452_qc_75_75_min25cells.h5ad"
+  hvg_input_h5ad: "fastq/data/GSE195452_scvi_hvg3000_latent_umap.h5ad"
+  output_h5ad: "fastq/data/GSE195452_qc_75_75_min25cells_with_scvi_umap.h5ad"
+  required_obsm:
+    - "X_scVI"
+    - "X_umap"
+
+tcell_extraction:
+  enabled: true
+  input_h5ad: "fastq/data/GSE195452_qc_75_75_min25cells_with_scvi_umap.h5ad"
+  output_h5ad: "fastq/data/GSE195452_Tcells_scvi.h5ad"
+  # Quantile gate on mean expression of T markers
+  tcell_score:
+    genes:
+      - "CD3D"
+      - "CD3E"
+      - "CD247"
+      - "TRAC"
+      - "TRBC1"
+    quantile: 0.85
+  # Optional B-cell score (for diagnostics; not used for gating unless you add that logic)
+  bcell_score:
+    genes:
+      - "MS4A1"
+      - "CD79A"
+      - "CD74"
+      - "HLA-DRA"
+
+tcell_clustering:
+  enabled: true
+  input_h5ad: "fastq/data/GSE195452_Tcells_scvi.h5ad"
+  output_h5ad: "fastq/data/GSE195452_Tcells_scvi_clustered.h5ad"
+  use_rep: "X_scVI"
+  neighbors:
+    n_neighbors: 15
+  umap:
+    enabled: true
+  leiden:
+    resolutions: [0.5, 0.8]
+    # key naming convention for outputs (your script can format these)
+    key_prefix: "leiden_r"
+
+program_scoring:
+  enabled: true
+  input_h5ad: "fastq/data/GSE195452_Tcells_scvi_clustered.h5ad"
+  output_h5ad: "fastq/data/GSE195452_Tcells_scvi_clustered_scored.h5ad"
+  plots_outdir: "fastq/data"
+  use_raw: false
+  programs:
+    Treg: ["FOXP3", "IL2RA", "CTLA4", "IKZF2"]
+    Tfh: ["CXCR5", "PDCD1", "ICOS", "BCL6"]
+    Th1: ["TBX21", "IFNG", "CXCR3"]
+    Th2: ["GATA3", "IL4", "IL13"]
+    Th17: ["RORC", "IL17A", "IL17F", "CCR6"]
+    Naive: ["CCR7", "LTB", "IL7R"]
+    Cytotoxic: ["NKG7", "GNLY", "GZMB", "PRF1", "CTSW"]
+
+cluster_labeling:
+  enabled: true
+  input_h5ad: "fastq/data/GSE195452_Tcells_scvi_clustered_scored.h5ad"
+  output_h5ad: "fastq/data/GSE195452_Tcells_scvi_clustered_labeled.h5ad"
+  cluster_key: "leiden_r05"
+  label_column: "functional_state"
+  output_labels_csv: "fastq/data/leiden_r05_cluster_labels.csv"
+  # Heuristic mapping rules used in your current approach
+  rules:
+    Cytotoxic: "Cytotoxic"
+    Naive: "Naive"
+    Th1: "Th1"
+    Th2: "Th2"
+    Th17: "Th17"
+    Tfh: "Tfh"
+    Treg: "Treg"
+    default: "Unpolarized"
+
+composition_tables:
+  enabled: true
+  input_h5ad: "fastq/data/GSE195452_Tcells_scvi_clustered_labeled.h5ad"
+  sample_key: "sample_id"
+  state_key: "functional_state"
+  output_counts_csv: "fastq/data/tcells_counts_by_sample_functional_state.csv"
+  output_fractions_csv: "fastq/data/tcells_frac_by_sample_functional_state.csv"
+
+figures:
+  enabled: true
+  outdir: "fastq/data"
+  # Expected figure artifacts from your run; useful for validation
+  expected_pngs:
+    - "umap_by_sample_id_nolegend.png"
+    - "tcells_umap_score_Treg.png"
+    - "tcells_umap_score_Tfh.png"
+    - "tcells_umap_score_Th1.png"
+    - "tcells_umap_score_Th2.png"
+    - "tcells_umap_score_Th17.png"
+    - "tcells_umap_score_Naive.png"
+    - "tcells_umap_score_Cytotoxic.png"
+    - "tcells_functional_state_cytokine_heatmap.png"
+
