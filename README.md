@@ -1,4 +1,4 @@
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.XXXXXX.svg)](https://doi.org/10.5281/zenodo.XXXXXX)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.18644684.svg)](https://doi.org/10.5281/zenodo.18644684)
 
 # Paper 3 – T Cell Functional States in Systemic Sclerosis
 
@@ -20,7 +20,7 @@ Functional state characterization of peripheral blood T cells in systemic sclero
 
 - **Manuscript**: [Frontiers in Immunology - Submitted]
 - **Input Data**: [GEO GSE195452](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE195452)
-- **Archived Code**: [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.XXXXXX.svg)](https://doi.org/10.5281/zenodo.XXXXXX)
+- **Archived Code**: [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.18644684.svg)](https://doi.org/10.5281/zenodo.18644684)
 
 ## Dataset
 
@@ -140,7 +140,7 @@ If you use this code, please cite:
 Ritschel, G.C. (2026). Single-cell transcriptomic analysis reveals program-based T cell functional states in systemic sclerosis peripheral blood.
 Submitted to Frontiers in Immunology.
 
-Code: https://doi.org/10.5281/zenodo.XXXXXX
+Code: https://doi.org/10.5281/zenodo.18644684
 ```
 
 ## License
